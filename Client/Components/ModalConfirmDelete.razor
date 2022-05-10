@@ -6,13 +6,13 @@
                 <button @onclick="() => OnClickButtonClose.InvokeAsync(false)" type="button" class="btn-close" aria-label="Close"></button>
             </div>
 
-            if (PostToDelete != null)
+            @if (PostToDelete != null)
             {
-            <h2>Are you sure you want to delete this post "@PostToDelete.Title"</h2>
+            <h2 class="text-center" >Are you sure you want to delete this post: @PostToDelete.Title ?</h2>
             <div class="modal-body">
             </div>
             <div class="modal-footer">
-                <button @onclick="() => OnClickButtonClose.InvokeAsync(false)" type="button" class="btn btn-secondary">Close</button>
+                <button @onclick="() => OnClickButtonClose.InvokeAsync(false)" type="button" class="btn btn-secondary">Cancel</button>
                 <button @onclick="DeletePostAsync" type="button" class="btn btn-danger">Confirm</button>
             </div>
 
@@ -39,18 +39,20 @@
 
     private async Task DeletePostAsync()
     {
-        Console.WriteLine($"DeletePostAsync | title: {PostToDelete.Title} | content: {PostToDelete.Content}");
-
-        HttpResponseMessage response = await HttpClient.DeleteAsync(APIEndpoints.PostsDelete(PostToDelete.PostId));
-
-        if (response.IsSuccessStatusCode)
+        //Console.WriteLine($"DeletePostAsync | title: {PostToDelete.Title} | content: {PostToDelete.Content}");
+        if (PostToDelete != null)
         {
-            await JsRuntime.InvokeVoidAsync("alert", "Post delete successful.");
-            OnClickButtonClose.InvokeAsync(true);
+            HttpResponseMessage response = await HttpClient.DeleteAsync(APIEndpoints.PostsDelete(PostToDelete.PostId));
+            if (response.IsSuccessStatusCode)
+            {
+                //await JsRuntime.InvokeVoidAsync("alert", "Post delete successful.");
+                await OnClickButtonClose.InvokeAsync(true);
+            }
+            else
+            {
+                await JsRuntime.InvokeVoidAsync("alert", "Post delete failed.");
+            }
         }
-        else
-        {
-            await JsRuntime.InvokeVoidAsync("alert", "Post delete failed.");
-        }
+
     }
 }
